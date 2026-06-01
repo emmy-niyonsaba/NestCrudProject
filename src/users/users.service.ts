@@ -1,39 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
-  ) {}
+  constructor(@InjectModel(User) private userModel: typeof User) {}
 
   async create(createUserDto: CreateUserDto) {
-    const user = this.usersRepository.create(createUserDto as Partial<User>);
-    const saved = await this.usersRepository.save(user);
-    // Do not return password
+    const created = await this.userModel.create(createUserDto as any);
+    const plain = created.get({ plain: true }) as any;
+    // exclude password
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...rest } = saved as any;
+    const { password, ...rest } = plain;
     return rest as Partial<User>;
   }
 
   findAll() {
-    return `This action returns all users`;
+    return this.userModel.findAll({
+      attributes: ['id', 'name', 'email'],
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.userModel.findByPk(id, {
+      attributes: ['id', 'name', 'email'],
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return this.userModel.update(updateUserDto, { where: { id } });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.userModel.destroy({ where: { id } });
   }
 }

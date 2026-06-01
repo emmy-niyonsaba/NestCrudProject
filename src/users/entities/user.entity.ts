@@ -1,24 +1,30 @@
 import {
-  Entity,
+  Table,
   Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-} from 'typeorm';
+  Model,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+} from 'sequelize-typescript';
 
-@Entity({ name: 'users' })
-export class User {
-  @PrimaryGeneratedColumn()
-  id!: number;
+@Table({
+  tableName: 'users',
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false,
+})
+export class User extends Model<User> {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({ type: DataType.INTEGER })
+  _ide!: number;
 
-  @Column()
+  @Column({ type: DataType.STRING })
   name!: string;
 
-  @Column({ unique: true })
+  @Column({ type: DataType.STRING, unique: true })
   email!: string;
 
-  @Column()
+  @Column({ type: DataType.STRING })
   password!: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
 }
